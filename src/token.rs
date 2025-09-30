@@ -13,22 +13,25 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(user_id: i32) -> anyhow::Result<Self> {
+    // Tokenを扱う際の最初に実行される。こいつを実行するとnonceが生成される。
+    pub async fn new<S: TokenManager>(user_id: i32, state: &S) -> anyhow::Result<Self> {
         let mut nonce = [0; 32];
         getrandom::fill(&mut nonce)?;
-        Ok(Self { user_id, nonce })
+        let token = Self { user_id, nonce };
+        state.create_token(token.get_nonce_as_string(), user_id).await?;
+        Ok(token)
     }
 
-    pub async fn generate<S: TokenManager>(&self, state: &S) -> anyhow::Result<String> {
+    // Tokenを生成する。stateに保存も行う。
+    pub async fn generate(&self) -> anyhow::Result<String> {
         let mut buffer = [0; 37];
         buffer[..4].copy_from_slice(&self.user_id.to_be_bytes());
         buffer[4] = b'.';
         buffer[5..].copy_from_slice(&self.nonce);
-        let nonce = self.get_nonce_as_string();
-        state.create_token(nonce, self.user_id).await?;
         Ok(BASE64_URL_SAFE_NO_PAD.encode(buffer))
     }
 
+    // Tokenをパースする。stateの確認は行わない。
     pub fn parse(token: String) -> anyhow::Result<Self> {
         let buffer = BASE64_URL_SAFE_NO_PAD.decode(token.as_bytes())?;
         let mut user_id_bytes = [0u8; 4];
@@ -39,6 +42,7 @@ impl Token {
         Ok(Self { user_id, nonce })
     }
 
+    // nonceをbase64エンコードした文字列を返す。
     pub fn get_nonce_as_string(&self) -> String {
         BASE64_URL_SAFE_NO_PAD.encode(self.nonce)
     }
