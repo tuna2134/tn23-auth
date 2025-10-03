@@ -18,6 +18,7 @@ pub struct APIError {
 }
 
 impl APIError {
+    /// 401 Unauthorized
     pub fn unauthorized(message: &str) -> Self {
         Self {
             status: StatusCode::UNAUTHORIZED,
@@ -25,6 +26,7 @@ impl APIError {
         }
     }
 
+    /// 404 Not Found
     pub fn not_found(message: &str) -> Self {
         Self {
             status: StatusCode::NOT_FOUND,
@@ -32,6 +34,7 @@ impl APIError {
         }
     }
 
+    /// 400 Bad Request
     pub fn bad_request(message: &str) -> Self {
         Self {
             status: StatusCode::BAD_REQUEST,
@@ -39,6 +42,7 @@ impl APIError {
         }
     }
 
+    /// 500 Internal Server Error
     pub fn internal_server_error(message: &str) -> Self {
         Self {
             status: StatusCode::INTERNAL_SERVER_ERROR,

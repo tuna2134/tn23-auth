@@ -8,6 +8,5 @@ Axumのために作成した認証ライブラリ
 あくまで、axum向けです。
 
 ## Example
-```rs
-use tn23_auth::token::Token;
-```
+`examples/hello`にサンプルのコードがあります。そちらを見てください。
+
