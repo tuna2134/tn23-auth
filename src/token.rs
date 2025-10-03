@@ -5,7 +5,7 @@ use axum_extra::{
 };
 use base64::prelude::*;
 
-use crate::{error::APIError, state::TokenManager};
+use crate::{APIResult, error::APIError, state::TokenManager};
 
 pub struct Token {
     pub user_id: i64,
@@ -34,8 +34,11 @@ impl Token {
     }
 
     // Tokenをパースする。stateの確認は行わない。
-    pub fn parse(token: String) -> anyhow::Result<Self> {
+    pub fn parse(token: String) -> APIResult<Self> {
         let buffer = BASE64_URL_SAFE_NO_PAD.decode(token.as_bytes())?;
+        if buffer.len() != 41 || buffer[8] != b'.' {
+            return Err(APIError::bad_request("Invalid token format"));
+        }
         let mut user_id_bytes = [0u8; 8];
         user_id_bytes.copy_from_slice(&buffer[..8]);
         let user_id = i64::from_be_bytes(user_id_bytes);
