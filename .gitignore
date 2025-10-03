@@ -1,1 +1,3 @@
 /target
+.env
+examples/hello/test.db
