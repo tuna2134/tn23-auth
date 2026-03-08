@@ -12,6 +12,7 @@ pub struct ResponseAPIError {
     message: String,
 }
 
+#[derive(Debug)]
 pub struct APIError {
     pub status: StatusCode,
     pub message: String,
